@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  service1:
+    container_name: service1_container
+    build:
+      context: ./service1
+      dockerfile: Dockerfile
+    ports:
+      - "8081:80"
+    volumes:
+      - type: bind
+        source: ./data/index.html
+        target: /usr/share/nginx/html/index.html
+    networks:
+      - net1
+
+  service2:
+    container_name: service2_container
+    build:
+      context: ./service2
+      dockerfile: Dockerfile
+    ports:
+      - "8082:80"
+    volumes:
+      - type: volume
+        source: my-volume
+        target: /usr/share/nginx/html
+    networks:
+      - net1
+      - net2
+    depends_on:
+      - service1
+
+  service3:
+    container_name: service3_container
+    image: "nginx:alpine"
+    ports:
+      - "8083:80"
+    volumes:
+      - type: bind
+        source: ./data/index2.html
+        target: /usr/share/nginx/html/index.html
+    depends_on:
+      - service2
+    networks:
+      - net2
+
+volumes:
+  my-volume:
+
+networks:
+  net1:
+    driver: bridge
+  net2:
+    driver: bridge
